@@ -8,3 +8,6 @@ Thumbs.db
 venv/
 build/
 dist/
+*.pdf
+*.pptx
+*.ppt
