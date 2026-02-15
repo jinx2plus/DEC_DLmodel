@@ -1,126 +1,215 @@
-﻿# DECmodel
+﻿# DEC_DLmodel
 
-이 저장소는 `0922Keras_DEC_DenseLayer-project.ipynb` 노트북을 정리해 GitHub 업로드에 맞게 구성한 프로젝트입니다.
+이 저장소는 교통 검지기 시계열 데이터에 대해 **Deep Embedded Clustering(DEC)** 기반 실험을 정리한 프로젝트입니다.
 
 ## 프로젝트 개요
-- 데이터 과학/딥러닝 실험 노트북을 보존하고, 실행 가능한 형태로 코드 파일을 분리해 제공합니다.
-- 노트북(`.ipynb`)과 스크립트(`.py`)를 함께 제공해 재현 가능성을 높입니다.
-- Python 기반 의존성은 `requirements.txt`로 관리합니다.
 
-## 파일 구성
-- `0922Keras_DEC_DenseLayer-project.ipynb` : 원본 노트북
-- `dec_dense_layer.py` : 노트북의 코드 셀만 추출한 실행 스크립트
-- `requirements.txt` : 실행에 필요한 패키지 목록
-- `.gitignore` : Git에서 제외할 파일 목록
+본 프로젝트는 KOTI 교통혼잡 예측 및 신호제어 과제의 실험 결과를 정리한 형태이며, Autoencoder로 특징을 추출한 뒤 DEC(Deep Embedded Clustering)로 교통 패턴을 군집화하는 파이프라인을 제공합니다.
 
-## 사용 방법
-1. 가상환경 생성 및 활성화
-2. `pip install -r requirements.txt`
-3. 노트북 사용: `jupyter notebook` 또는 `jupyter lab`
-4. 스크립트 실행: `python dec_dense_layer.py`
+- 입력 데이터: 정규화된 CSV(`input_normalize.csv`)
+- 특징 추출: Autoencoder latent space(차원 축소)
+- 군집화: DEC(Soft Assignment + KL loss)
+- 산출물: 군집 라벨 예측, 정확도/ARI/NMI, 혼동행렬, 결과 엑셀 파일
 
-## Repository purpose
-This repository contains `0922Keras_DEC_DenseLayer-project.ipynb` organized for GitHub upload and reproducible sharing.
+## 저장소 구성
 
-## Project overview
-- It preserves the original notebook and provides a separated executable code file for reuse.
-- The notebook (`.ipynb`) and script (`.py`) are both included to improve reproducibility.
-- Python dependencies are tracked in `requirements.txt`.
+- `dec_dense_layer.py`
+  - 노트북 코드를 실행 가능한 Python 스크립트로 정리한 메인 코드
+- `0922Keras_DEC_DenseLayer-project.ipynb`
+  - 핵심 실험 노트북
+- `Keras_DEC_DenseLayer.ipynb`
+  - 보조 실험 노트북
+- `090202Keras_DEC_DenseLayer-project-Copy1.ipynb`, `090202Keras_DEC_DenseLayer-project-Copy2.ipynb`
+  - 과거 실험본(참고용)
+- `metrics.py`
+  - `dec_dense_layer.py`에서 사용되는 ACC / NMI / ARI 계산 모듈
+- `requirements.txt`
+  - 실행 의존성
+- `README.md`
+  - 프로젝트 설명서
+- `.gitignore`
+- 결과 산출물 예시:
+  - `...pdf`, `...xlsx`, `results/*.h5`
 
-## Repository structure
-- `0922Keras_DEC_DenseLayer-project.ipynb`: original notebook
-- `dec_dense_layer.py`: extracted code cells from the notebook
-- `requirements.txt`: required package list
-- `.gitignore`: ignored files for Git
+## 설치
 
-## How to run
-1. Create and activate a virtual environment
-2. `pip install -r requirements.txt`
-3. Use notebook: `jupyter notebook` or `jupyter lab`
-4. Or run script: `python dec_dense_layer.py`
+```bash
+cd F:\DEC_DLmodel
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+```
 
-@TODO: dataset and output paths may need local path adjustment before execution.
+> 권장 환경: Python 3.7+
 
-🚦 Traffic Pattern Clustering with DEC
-> Deep Learning based Traffic Signal Optimization Project
-> 딥러닝 기반 도심지 교통 패턴 군집화 및 신호 최적화 솔루션
+> 참고: `dec_dense_layer.py`는 `metrics` 모듈을 import합니다. 실행 경로에 `metrics.py`가 있어야 합니다.
 
----
+## 실행 방법
 
-## ⚡️ Project at a Glance
-본 프로젝트는 한국교통연구원(KOTI) 의 "딥러닝 기반 도심지 교통혼잡 예측 및 신호제어 솔루션 시스템 개발" 과제의 일환으로 수행되었습니다.
+1) 경로 수정
 
-기존의 정적인 신호 제어(Static TOD) 방식의 한계를 극복하기 위해, Deep Embedded Clustering (DEC) 알고리즘을 활용하여 시시각각 변하는 교통 패턴을 자율적으로 학습하고 분류하는 딥러닝 모델을 구축했습니다.
+`dec_dense_layer.py`에서 데이터 입력 경로와 결과 저장 경로를 현재 환경에 맞게 수정합니다.
 
----
+```python
+trains = np.loadtxt("<input_normalize.csv 경로>", skiprows=1, delimiter=',', dtype=float)
+...
+df.to_excel('<결과 저장 경로>/result.xlsx', index=False)
+```
 
-## 🧐 Why This Project? (Problem Solving)
+2) 실행
 
-### 🚫 The Problem
-* 정적 운영: 기존 교통 신호는 사전에 정해진 시간표(TOD)대로만 운영되어, 돌발적인 혼잡이나 날씨 변화에 유연하게 대처하지 못함.
-* 전문가 의존: 신호 운영 시간대(첨두/비첨두 등)를 구분할 때 데이터보다는 전문가의 경험적 판단에 의존함.
+```bash
+python dec_dense_layer.py
+```
 
-### ✅ The Solution
-* Data-Driven: 44개 검지기에서 수집된 대규모 시공간 데이터를 활용.
-* Auto Clustering: DEC 알고리즘을 통해 교통량, 속도, 밀도 패턴을 스스로 학습하여 "현재 교통 상황이 어떤 상태인지" 정확히 분류.
-* Dynamic Control: 분류된 패턴에 맞춰 최적의 신호 제어 시나리오(Dynamic TOD)를 매칭할 수 있는 기반 마련.
+3) 생성 결과 확인
 
----
+- 가중치: `results/ae_weights.h5`, `results/DEC_model_final.h5`
+- 결과 파일: `result.xlsx`
+- 학습/평가 지표: Acc, NMI, ARI, Confusion Matrix
 
-## 🧠 Methodology : DEC (Deep Embedded Clustering)
+## 주요 하이퍼파라미터
 
-고차원의 시계열 교통 데이터를 효과적으로 군집화하기 위해 Autoencoder와 K-Means가 결합된 DEC 모델을 설계했습니다.
+- `n_clusters = 5`
+  - 기본값(실험 기준). 데이터 성격에 따라 조정 가능
+- Autoencoder 구조 예시: `[input_dim, 500, 1000, 2000, 3000, 5000, 10]`
+- Optimizer: `SGD`
+  - pretrain: `lr=0.1, momentum=0.9`
+  - DEC fine-tune: `lr=0.01, momentum=0.9`
+- `batch_size = 128`
+- `pretrain_epochs = 1000`
+- `maxiter = 20000`, `update_interval = 140`, `tol = 0.001`
 
-### 1️⃣ Stacked Autoencoder (Dimensionality Reduction)
-* Role: 노이즈가 많은 264차원의 원본 데이터를 10차원의 잠재 공간(Latent Space) 으로 압축하여 핵심 특징(Feature)만 추출.
-* Structure: Input(264) → Dense(500-1000-2000-3000-5000) → Latent(10)
+## 코드 흐름
 
-### 2️⃣ Soft Assignment & Fine-tuning
-* Initialization: 압축된 데이터(Z-space)에 K-means를 적용하여 초기 중심점 설정.
-* Optimization: Student's t-distribution을 기반으로 데이터와 군집 중심 간의 유사도를 계산하고, KL Divergence를 최소화하며 군집 성능을 강화.
+`dec_dense_layer.py`는 다음 순서로 동작합니다.
 
----
+1. CSV 로딩 및 전처리
+   - 현재 코드 기준: `[:,531:795]` 구간을 사용해 264차원 입력 생성
+2. Autoencoder 학습
+3. encoder 임베딩에 대해 KMeans로 초기 클러스터 중심 초기화
+4. DEC 모델 구성 (`ClusteringLayer`, KL loss)
+5. 반복 학습
+   - `q`(soft assignment) 계산 후 보조 분포 `p` 갱신
+   - `delta_label < tol` 기준으로 조기 종료
+6. 테스트 추론 및 지표 계산
+7. 결과 엑셀 저장 및 시각화
 
-## 📊 Dataset & Preprocessing
+## 주의사항
 
-| Feature | Description |
-| :--- | :--- |
-| Source | 대전광역시 대덕대로 (대덕대교~경성큰마을 네거리) 44개 검지기 |
-| Metrics | 🚗 Volume (교통량), 🚀 Speed (속도), 📦 Density (밀도) |
-| Scale | 10분 단위 집계 (06:00 ~ 21:50) × 35일간의 데이터 |
-| Preprocessing | Missing Value Handling, Min-Max Normalization |
+- 연구 실험 목적 코드이므로, 운영 적용 전에는 경로, 라벨 정의, 군집 개수, 피처 범위를 재확인하세요.
+- 한글 경로/인코딩 이슈가 있으면 영문 경로에서 실행하는 것을 권장합니다.
 
----
+## 라이선스
 
-## 🏆 Key Results
-
-### 🎯 Traffic Pattern Discovery
-모델 학습 결과, 데이터가 단순 시간대가 아닌 실제 도로 혼잡 강도에 따라 명확하게 군집화되었습니다.
-
-* Cluster A (Morning Peak): 출근 시간대 특유의 고밀도·저속 패턴 식별.
-* Cluster B (Off-Peak): 낮 시간대 원활한 흐름 식별.
-* Cluster C (Event Driven): 특정 요일/이벤트 발생 시의 비정상 혼잡 패턴 감지.
-
-> 💡 Impact: 이 결과는 VISSIM 시뮬레이션과 연동되어, 각 군집(패턴)별 최적 신호 주기를 산출하는 "AI 기반 신호 최적화 라이브러리" 구축의 핵심 엔진으로 활용되었습니다.
-
----
-
-## 🛠 Tech Stack
-
-### Languages & Frameworks
-![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white) ![TensorFlow](https://img.shields.io/badge/TensorFlow-FF6F00?style=flat-square&logo=tensorflow&logoColor=white) ![Keras](https://img.shields.io/badge/Keras-D00000?style=flat-square&logo=keras&logoColor=white)
-
-### Data Analysis & Visualization
-![Pandas](https://img.shields.io/badge/Pandas-150458?style=flat-square&logo=pandas&logoColor=white) ![NumPy](https://img.shields.io/badge/NumPy-013243?style=flat-square&logo=numpy&logoColor=white) ![Matplotlib](https://img.shields.io/badge/Matplotlib-ffffff?style=flat-square&logo=matplotlib&logoColor=black) ![Scikit-Learn](https://img.shields.io/badge/Scikit_Learn-F7931E?style=flat-square&logo=scikit-learn&logoColor=white)
-
-[![Python](https://img.shields.io/badge/Python-3.7+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![TensorFlow](https://img.shields.io/badge/TensorFlow-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white)](https://www.tensorflow.org/)
-[![Keras](https://img.shields.io/badge/Keras-D00000?style=for-the-badge&logo=keras&logoColor=white)](https://keras.io/)
-[![Pandas](https://img.shields.io/badge/Pandas-150458?style=for-the-badge&logo=pandas&logoColor=white)](https://pandas.pydata.org/)
-[![KOTI](https://img.shields.io/badge/KOTI-Research-0056D2?style=for-the-badge)](https://www.koti.re.kr/)
-
+별도의 라이선스 파일이 없어 배포 전 라이선스 정책을 지정해 주세요.
 
 ---
-<div align="center">
-  <sub>Built with 💻 by YongJin Park for KOTI Research Project</sub>
-</div>
+
+## English Version
+
+# DEC_DLmodel
+
+This repository contains Deep Embedded Clustering (DEC)-based experiments on traffic detector time-series data.
+
+## Project Overview
+
+This project organizes experimental work from a KOTI traffic congestion prediction and signal control task and provides a pipeline that applies DEC on top of Autoencoder-based feature representations.
+
+- Input: normalized CSV (`input_normalize.csv`)
+- Feature extraction: Autoencoder latent space (dimensionality reduction)
+- Clustering: DEC (Soft Assignment + KL loss)
+- Outputs: cluster predictions, Accuracy/NMI/ARI, confusion matrix, and result spreadsheets.
+
+## Repository Structure
+
+- `dec_dense_layer.py`
+  - Main executable Python script converted from the notebook workflow
+- `0922Keras_DEC_DenseLayer-project.ipynb`
+  - Core experiment notebook
+- `Keras_DEC_DenseLayer.ipynb`
+  - Supporting experiment notebook
+- `090202Keras_DEC_DenseLayer-project-Copy1.ipynb`, `090202Keras_DEC_DenseLayer-project-Copy2.ipynb`
+  - Legacy experiment copies for reference
+- `metrics.py`
+  - Metrics helper module used by `dec_dense_layer.py` (ACC/NMI/ARI)
+- `requirements.txt`
+  - Runtime dependencies
+- `README.md`
+  - Project documentation
+- `.gitignore`
+- Example outputs:
+  - `...pdf`, `...xlsx`, `results/*.h5`
+
+## Setup
+
+```bash
+cd F:\DEC_DLmodel
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+> Recommended: Python 3.7+
+
+> Note: `dec_dense_layer.py` imports `metrics`; ensure `metrics.py` is available in the runtime path.
+
+## How to Run
+
+1) Update paths
+
+Modify dataset input and output paths in `dec_dense_layer.py` for your environment.
+
+```python
+trains = np.loadtxt("<path to input_normalize.csv>", skiprows=1, delimiter=',', dtype=float)
+...
+df.to_excel('<path to output>/result.xlsx', index=False)
+```
+
+2) Run
+
+```bash
+python dec_dense_layer.py
+```
+
+3) Check outputs
+
+- Weights: `results/ae_weights.h5`, `results/DEC_model_final.h5`
+- Result file: `result.xlsx`
+- Logs / metrics: Accuracy, NMI, ARI, Confusion Matrix
+
+## Key Hyperparameters
+
+- `n_clusters = 5`
+  - Default from current experiment; adjust based on data and task goals
+- Autoencoder architecture example: `[input_dim, 500, 1000, 2000, 3000, 5000, 10]`
+- Optimizer: `SGD`
+  - pretrain: `lr=0.1, momentum=0.9`
+  - DEC finetune: `lr=0.01, momentum=0.9`
+- `batch_size = 128`
+- `pretrain_epochs = 1000`
+- `maxiter = 20000`, `update_interval = 140`, `tol = 0.001`
+
+## Code Pipeline
+
+`dec_dense_layer.py` follows this workflow:
+
+1. Load and preprocess CSV
+   - Current code uses the slice `[:,531:795]` to build a 264-dimensional feature vector
+2. Train Autoencoder
+3. Initialize DEC cluster centers using KMeans on encoder embeddings
+4. Build DEC model (`ClusteringLayer`, KL loss)
+5. Iterative training
+   - Update soft assignments `q` and auxiliary target distribution `p`
+   - Stop when convergence condition `delta_label < tol` is met
+6. Run inference on test set and compute metrics
+7. Export output spreadsheet and visualizations
+
+## Notes
+
+- This is a research-oriented codebase. Before production use, validate input paths, label definitions, number of clusters, and feature ranges.
+- If you face path/encoding issues, especially with Korean paths, use ASCII-only directories for stable execution.
+
+## License
+
+No separate license file is provided. Please define your license policy before external distribution.
