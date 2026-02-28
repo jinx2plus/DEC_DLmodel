@@ -11,6 +11,8 @@
 - 특징 추출: Autoencoder latent space(차원 축소)
 - 군집화: DEC(Soft Assignment + KL loss)
 - 산출물: 군집 라벨 예측, 정확도/ARI/NMI, 혼동행렬, 결과 엑셀 파일
+- 
+![Description of the project structure](./IMAGE.png)
 
 ## 🚀 프로젝트 목적
 
